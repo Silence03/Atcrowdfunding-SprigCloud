@@ -88,7 +88,7 @@
 							<h3>
 								${loginmember.loginacct }
 							</h3>
-							<span class="label label-danger" style="cursor:pointer;" onclick="window.location.href='accttype.html'">未实名认证</span>
+							<span class="label label-danger" style="cursor:pointer;" onclick="window.location.href='${APP_PATH}/member/apply'">未实名认证</span>
 						</div>
 					</div>
 				</div>

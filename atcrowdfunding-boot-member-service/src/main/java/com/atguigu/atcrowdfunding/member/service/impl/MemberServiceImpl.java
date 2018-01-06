@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.atguigu.atcrowdfunding.common.bean.Member;
+import com.atguigu.atcrowdfunding.common.bean.Ticket;
 import com.atguigu.atcrowdfunding.member.dao.MemberDao;
 import com.atguigu.atcrowdfunding.member.service.MemberService;
 
-@Transactional(readOnly=true) //开启事务
+@Transactional //开启事务
 @Service
 public class MemberServiceImpl implements MemberService {
 	@Autowired
@@ -18,6 +19,30 @@ public class MemberServiceImpl implements MemberService {
 	public Member getMemberByLoginacct(String loginacct) {
 		Member m = memberDao.getMemberByLoginacct(loginacct);
 		return m;
+	}
+
+	@Override
+	public Ticket queryTicketByMemberId(Integer id) {
+		
+		return memberDao.queryTicketByMemberId(id);
+	}
+
+	@Override
+	public int updateAccttype(Member loginmember) {
+		// TODO Auto-generated method stub
+		return memberDao.updateAccttype(loginmember);
+	}
+
+	@Override
+	public int updateticket(Ticket ticket) {
+		// TODO Auto-generated method stub
+		return memberDao.updateticket(ticket);
+	}
+
+	@Override
+	public int updateBasicinfo(Member loginmember) {
+		// TODO Auto-generated method stub
+		return memberDao.updateBasicinfo(loginmember);
 	}
 	
 }

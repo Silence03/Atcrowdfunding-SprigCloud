@@ -22,6 +22,8 @@ public class Member implements Serializable{
     private String cardnum;
 
     private String accttype;
+    
+    private String tel;
 
     public Integer getId() {
         return id;
@@ -108,6 +110,14 @@ public class Member implements Serializable{
 		return "Member [id=" + id + ", loginacct=" + loginacct + ", userpswd=" + userpswd + ", username=" + username
 				+ ", email=" + email + ", authstatus=" + authstatus + ", usertype=" + usertype + ", realname="
 				+ realname + ", cardnum=" + cardnum + ", accttype=" + accttype + "]";
+	}
+
+	public String getTel() {
+		return tel;
+	}
+
+	public void setTel(String tel) {
+		this.tel = tel;
 	}
     
 }
