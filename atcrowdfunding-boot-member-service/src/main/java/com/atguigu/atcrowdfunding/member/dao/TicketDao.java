@@ -6,6 +6,6 @@ import com.atguigu.atcrowdfunding.common.bean.Ticket;
 
 public interface TicketDao {
 	@Insert("insert into t_ticket(memberid,piid,status,pstep) values(#{memberid},#{piid},#{status},#{pstep})")
-	int saveticket(Ticket ticket);
+	public int saveticket(Ticket ticket);
 
 }

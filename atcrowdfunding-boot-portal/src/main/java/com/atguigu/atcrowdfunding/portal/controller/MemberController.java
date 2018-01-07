@@ -1,16 +1,25 @@
 package com.atguigu.atcrowdfunding.portal.controller;
 
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.atguigu.atcrowdfunding.common.bean.BaseController;
+import com.atguigu.atcrowdfunding.common.bean.Cert;
 import com.atguigu.atcrowdfunding.common.bean.Member;
+import com.atguigu.atcrowdfunding.common.bean.MemberCert;
 import com.atguigu.atcrowdfunding.common.bean.Ticket;
 import com.atguigu.atcrowdfunding.common.util.Const;
+import com.atguigu.atcrowdfunding.common.util.DataList;
 import com.atguigu.atcrowdfunding.portal.service.ActivitiService;
 import com.atguigu.atcrowdfunding.portal.service.MemberService;
 import com.atguigu.atcrowdfunding.portal.service.TicketService;
@@ -30,7 +39,7 @@ public class MemberController extends BaseController{
 	 * 点击实名认证
 	 */
 	@RequestMapping("/member/apply")
-	public String member(HttpSession session) {
+	public String member(HttpSession session,Map<String,Object> map) {
 		// 根据登录会员id,查询流程单
 		Member member = (Member) session.getAttribute(Const.LOGINMEMBER);
 		Ticket ticket = memberService.queryTicketByMemberId(member.getId());
@@ -45,7 +54,7 @@ public class MemberController extends BaseController{
 			ticket.setPstep("accttype");
 			ticket.setPiid(piid);
 			
-			int i = ticketService.saveticket(ticket);
+			ticketService.saveticket(ticket);
 			// § 跳转到账户类型选择页面
 			return "member/accttype";
 		}else {
@@ -56,6 +65,9 @@ public class MemberController extends BaseController{
 			}else if("basicinfo".equals(ticket.getPstep())) {
 				return "member/basicinfo";
 			}else if("certupload".equals(ticket.getPstep())) {
+				
+				List<Cert> certs = memberService.queryCertsByAccttype(member.getAccttype());
+				map.put("certs", certs);
 				return "member/certupload";
 			}else if("checkemail".equals(ticket.getPstep())) {
 				return "member/checkemail";
@@ -115,9 +127,83 @@ public class MemberController extends BaseController{
 		return end();
 	}
 	
+	/**
+	 * 用户资质文件上传
+	 */
+	@ResponseBody
+	@RequestMapping("/member/certUpload")
+	public Object certUpload(DataList mcs, HttpSession session) {
+		start();
+		try {
+			Member loginmember = (Member) session.getAttribute(Const.LOGINMEMBER);
+			List<MemberCert> mcs2 = mcs.getMcs();
+			for (MemberCert memberCert : mcs2) {
+				MultipartFile file = memberCert.getCertfile();
+				String filename = file.getOriginalFilename();//原始文件名称
+				String suffix = filename.substring(filename.lastIndexOf("."));
+				String iconpath = UUID.randomUUID().toString()+suffix;//xxxx.jpg
+				File f=new File("E:/ProgramFiles1/resource/pic/"+iconpath);
+				file.transferTo(f);
+				memberCert.setIconpath(iconpath);
+				memberCert.setMemberid(loginmember.getId());
+				memberCert.setCertfile(null);
+			}
+			memberService.saveMemberCertList(mcs2);
+			success(true);
+		} catch (Exception e) {
+			success(false);
+			e.printStackTrace();
+		}
+		return end();
+	}
 	
 	
+	/**
+	 * 用户邮箱验证
+	 */
+	@ResponseBody
+	@RequestMapping("/member/checkemail")
+	public Object checkemail(String email, HttpSession session) {
+		start();
+		try {
+			Member loginmember = (Member) session.getAttribute(Const.LOGINMEMBER);
+			loginmember.setEmail(email);
+			session.setAttribute(Const.LOGINMEMBER, loginmember);
+			int i = memberService.updateEmail(loginmember);
+			success(true);
+		} catch (Exception e) {
+			success(false);
+			e.printStackTrace();
+		}
+		return end();
+	}
 	
+	/**
+	 * 用户验证码验证
+	 */
+	@ResponseBody
+	@RequestMapping("/member/completeApply")
+	public Object completeApply(String authcode, HttpSession session) {
+		start();
+		try {
+			Member loginmember = (Member) session.getAttribute(Const.LOGINMEMBER);
+			Ticket ticket = memberService.queryTicketByMemberId(loginmember.getId());
+			if(authcode.equals(ticket.getAuthcode())) {
+				loginmember.setAuthstatus("1");
+				memberService.completeApply(loginmember);
+				session.setAttribute(Const.LOGINMEMBER, loginmember);
+			}else {
+				success(false);
+			}
+			
+			
+			success(true);
+		} catch (Exception e) {
+			success(false);
+			e.printStackTrace();
+		}
+		return end();
+	}
 	
 	
 	

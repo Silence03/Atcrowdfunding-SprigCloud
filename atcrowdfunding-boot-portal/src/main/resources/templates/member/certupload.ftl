@@ -29,7 +29,7 @@
             <div id="navbar" class="navbar-collapse collapse" style="float:right;">
               <ul class="nav navbar-nav">
                 <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user"></i> 张三<span class="caret"></span></a>
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user"></i> ${Session.loginmember.loginacct }<span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
                     <li><a href="member.html"><i class="glyphicon glyphicon-scale"></i> 会员中心</a></li>
                     <li><a href="#"><i class="glyphicon glyphicon-comment"></i> 消息</a></li>
@@ -57,15 +57,18 @@
 		  <li role="presentation"><a href="#"><span class="badge">4</span> 申请确认</a></li>
 		</ul>
         
-		<form role="form" style="margin-top:20px;">
-		  <div class="form-group">
-			<label for="exampleInputEmail1">手执身份证照片</label>
-			<input type="file" class="form-control" >
-            <br>
-            <img src="img/pic.jpg">
-		  </div>
+		<form id="certUploadForm" method="post" action="${APP_PATH}/member/certUpload" enctype="multipart/form-data" role="form" style="margin-top:20px;">
+			<#list certs as cert>
+			  <div class="form-group">
+				<label for="exampleInputEmail1">${cert.name}</label>
+				<input type="hidden" name="mcs[${cert_index}].cert.id" value="${cert.id}">
+            	<input type="file" name="mcs[${cert_index}].certfile" class="form-control" >
+	            <img src="" style="display:none;">
+			  </div>
+			</#list>
+		  
           <button type="button" onclick="window.location.href='apply.html'" class="btn btn-default">上一步</button>
-		  <button type="button" onclick="window.location.href='apply-2.html'"  class="btn btn-success">下一步</button>
+		  <button type="button" onclick="nextStep()"  class="btn btn-success">下一步</button>
 		</form>
 		<hr>
     </div> <!-- /container -->
@@ -85,6 +88,7 @@
             </div>
         </div>
     <script src="${APP_PATH}/jquery/jquery-2.1.1.min.js"></script>
+    <script src="${APP_PATH}/jquery/jquery-form.min.js"></script>
     <script src="${APP_PATH}/bootstrap/js/bootstrap.min.js"></script>
 	<script src="${APP_PATH}/script/docs.min.js"></script>
 	<script src="${APP_PATH}/layer/layer.js"></script>
@@ -92,7 +96,33 @@
         $('#myTab a').click(function (e) {
           e.preventDefault()
           $(this).tab('show')
-        });        
+        }); 
+        //上传图片预览功能实现 
+        $(":file").change(function(event){
+            var files = event.target.files, file;
+            if (files && files.length > 0) {
+                file = files[0];
+            }
+            var URL = window.URL || window.webkitURL;
+            var imgURL = URL.createObjectURL(file);
+            
+            var imgobj = $(this).next();
+            imgobj.attr("src", imgURL);
+            imgobj.show();
+        });
+        //上传文件异步请求
+        function nextStep(){
+        	$("#certUploadForm").ajaxSubmit({
+        		success:function(result){
+        			if(result.success){
+        				window.location.href="${APP_PATH}/member/apply";
+        			}else{
+        				layer.msg("资质上传失败", {time:1500, icon:5, shift:6});
+        			}
+        		}
+        	});
+        };
+      
 	</script>
   </body>
 </html>

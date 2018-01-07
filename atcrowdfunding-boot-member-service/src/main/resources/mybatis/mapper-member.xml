@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.atguigu.atcrowdfunding.member.dao.MemberDao">
+	
+	
+	<!-- List<Cert> queryCertsByAccttype(String accttype); -->
+	<select id="queryCertsByAccttype" resultType="com.atguigu.atcrowdfunding.common.bean.Cert">
+		SELECT * FROM t_cert WHERE id IN (
+		SELECT certid FROM t_account_type_cert WHERE accttype=#{accttype}
+		)
+	</select>
+	
+	<!-- saveMemberCertList -->
+	<insert id="saveMemberCertList">
+		insert into t_member_cert(memberid,certid,iconpath) values
+		<foreach collection="list" item="cert" separator=",">
+			(#{cert.memberid},#{cert.certid},#{cert.iconpath})
+		</foreach>
+	
+	</insert>
+
+
+    
+
+</mapper>

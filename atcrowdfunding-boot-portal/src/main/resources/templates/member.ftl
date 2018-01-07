@@ -88,7 +88,13 @@
 							<h3>
 								${loginmember.loginacct }
 							</h3>
-							<span class="label label-danger" style="cursor:pointer;" onclick="window.location.href='${APP_PATH}/member/apply'">未实名认证</span>
+							<#if loginmember.authstatus == "1" >
+								<span class="label label-warning" style="cursor:pointer;">实名认证申请中</span>
+							<#elseif loginmember.authstatus == "2" >
+								<span class="label label-success" style="cursor:pointer;">已实名认证</span>
+							<#else>
+								<span class="label label-danger" style="cursor:pointer;" onclick="window.location.href='${APP_PATH}/member/apply'">未实名认证</span>
+							</#if>
 						</div>
 					</div>
 				</div>
